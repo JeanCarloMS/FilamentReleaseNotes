@@ -1,0 +1,36 @@
+{
+    "name": "ros/filament-release-notes",
+    "description": "Filament plugin to display Git release notes with search, pagination, and Shield permissions.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "filament",
+        "laravel",
+        "release-notes",
+        "git",
+        "shield"
+    ],
+    "require": {
+        "php": "^8.2",
+        "bezhansalleh/filament-shield": "^3.3",
+        "filament/filament": "^3.3",
+        "illuminate/contracts": "^12.0",
+        "illuminate/support": "^12.0",
+        "spatie/laravel-permission": "^6.0",
+        "symfony/process": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ros\\FilamentReleaseNotes\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ros\\FilamentReleaseNotes\\FilamentReleaseNotesServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
