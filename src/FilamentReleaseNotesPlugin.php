@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Ros\FilamentReleaseNotes;
+namespace JeanCarloMS\FilamentReleaseNotes;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
-use Ros\FilamentReleaseNotes\Domain\VO\ReleaseNotesPluginConfigVO;
-use Ros\FilamentReleaseNotes\Pages\ReleaseNotes;
-use Ros\FilamentReleaseNotes\Support\ReleaseNotesPluginRegistry;
+use JeanCarloMS\FilamentReleaseNotes\Domain\VO\ReleaseNotesPluginConfigVO;
+use JeanCarloMS\FilamentReleaseNotes\Pages\ReleaseNotes;
+use JeanCarloMS\FilamentReleaseNotes\Support\ReleaseNotesPluginRegistry;
 use Spatie\Permission\Contracts\Permission as PermissionContract;
 use Spatie\Permission\PermissionRegistrar;
 

@@ -1,4 +1,4 @@
-# ROS Filament Release Notes
+# JeanCarloMS Filament Release Notes
 
 Plugin de Filament para mostrar un timeline de commits del repositorio Git actual como una pagina tipo "Release Notes".
 
@@ -21,7 +21,7 @@ Incluye:
 ## Instalacion
 
 ```bash
-composer require ros/filament-release-notes
+composer require JeanCarloMS/filament-release-notes
 ```
 
 ## Publicar configuracion
@@ -33,7 +33,7 @@ php artisan vendor:publish --tag=filament-release-notes-config
 ## Registrar el plugin en Filament
 
 ```php
-use Ros\FilamentReleaseNotes\FilamentReleaseNotesPlugin;
+use JeanCarloMS\FilamentReleaseNotes\FilamentReleaseNotesPlugin;
 
 FilamentReleaseNotesPlugin::make()
     ->navigationGroup('System')
@@ -84,7 +84,7 @@ Opciones disponibles:
 1. Sube este paquete a un repositorio Git publico independiente.
 2. Crea un tag semantico, por ejemplo `v1.0.0`.
 3. Registra el repositorio en Packagist.
-4. Ejecuta `composer require ros/filament-release-notes` en el proyecto consumidor.
+4. Ejecuta `composer require JeanCarloMS/filament-release-notes` en el proyecto consumidor.
 
 ## Licencia
 

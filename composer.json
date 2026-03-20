@@ -1,5 +1,5 @@
 {
-    "name": "ros/filament-release-notes",
+    "name": "JeanCarloMS/filament-release-notes",
     "description": "Filament plugin to display Git release notes with search, pagination, and Shield permissions.",
     "type": "library",
     "license": "MIT",
@@ -21,13 +21,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Ros\\FilamentReleaseNotes\\": "src/"
+            "JeanCarloMS\\FilamentReleaseNotes\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Ros\\FilamentReleaseNotes\\FilamentReleaseNotesServiceProvider"
+                "JeanCarloMS\\FilamentReleaseNotes\\FilamentReleaseNotesServiceProvider"
             ]
         }
     },

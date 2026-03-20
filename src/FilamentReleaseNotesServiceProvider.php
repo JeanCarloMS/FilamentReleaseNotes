@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Ros\FilamentReleaseNotes;
+namespace JeanCarloMS\FilamentReleaseNotes;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Support\ServiceProvider;
-use Ros\FilamentReleaseNotes\Application\Contracts\ReleaseNotesReaderInterface;
-use Ros\FilamentReleaseNotes\Application\Services\LoadReleaseNotesService;
-use Ros\FilamentReleaseNotes\Infrastructure\Git\GitReleaseNotesReader;
-use Ros\FilamentReleaseNotes\Infrastructure\Git\GitRemoteUrlParser;
-use Ros\FilamentReleaseNotes\Support\ReleaseNotesPluginRegistry;
+use JeanCarloMS\FilamentReleaseNotes\Application\Contracts\ReleaseNotesReaderInterface;
+use JeanCarloMS\FilamentReleaseNotes\Application\Services\LoadReleaseNotesService;
+use JeanCarloMS\FilamentReleaseNotes\Infrastructure\Git\GitReleaseNotesReader;
+use JeanCarloMS\FilamentReleaseNotes\Infrastructure\Git\GitRemoteUrlParser;
+use JeanCarloMS\FilamentReleaseNotes\Support\ReleaseNotesPluginRegistry;
 
 class FilamentReleaseNotesServiceProvider extends ServiceProvider
 {

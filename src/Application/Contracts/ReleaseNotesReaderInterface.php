@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ros\FilamentReleaseNotes\Application\Contracts;
+namespace JeanCarloMS\FilamentReleaseNotes\Application\Contracts;
 
-use Ros\FilamentReleaseNotes\Domain\VO\ReleaseNotesFeedVO;
+use JeanCarloMS\FilamentReleaseNotes\Domain\VO\ReleaseNotesFeedVO;
 
 interface ReleaseNotesReaderInterface
 {

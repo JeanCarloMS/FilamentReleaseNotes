@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Ros\FilamentReleaseNotes\Application\Services;
+namespace JeanCarloMS\FilamentReleaseNotes\Application\Services;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
-use Ros\FilamentReleaseNotes\Application\Contracts\ReleaseNotesReaderInterface;
+use JeanCarloMS\FilamentReleaseNotes\Application\Contracts\ReleaseNotesReaderInterface;
 
 final readonly class LoadReleaseNotesService
 {

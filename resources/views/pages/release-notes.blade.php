@@ -113,7 +113,7 @@
                             href="{{ request()->url() }}"
                             class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
                         >
-                            Limpiar filtros
+                            Limpiar filtJeanCarloMS
                         </a>
                     @endif
                 </div>
