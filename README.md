@@ -1,36 +1,48 @@
 # JeanCarloMS Filament Release Notes
 
-Plugin de Filament para mostrar un timeline de commits del repositorio Git actual como una pagina tipo "Release Notes".
+Filament plugin that displays a timeline of commits from the current Git repository as a "Release Notes" page.
 
-Incluye:
+Includes:
 
-- paginacion real sobre `git log`
-- busqueda por palabras en commits
-- links directos al commit en GitHub
-- integracion con `Filament Shield`
-- configuracion por panel
+- real pagination over `git log`
+- commit message keyword search
+- direct links to commits on GitHub
+- `Filament Shield` integration
+- per-panel configuration
 
-## Requisitos
+## Requirements
 
 - PHP 8.2+
 - Laravel 12+
 - Filament 3.3+
 - `bezhansalleh/filament-shield`
-- acceso local al repositorio Git del proyecto
+- local access to the project's Git repository
 
-## Instalacion
+## Installation
 
 ```bash
 composer require JeanCarloMS/filament-release-notes
 ```
 
-## Publicar configuracion
+## Custom Filament Theme
+
+If the plugin will be used inside a Filament panel, you must create a custom theme for that panel so Tailwind can include the plugin styles.
+
+Add the following line to that theme's CSS file:
+
+```css
+@source '../../../../vendor/jeancarloms/filament-release-notes/resources/views/**/*.blade.php';
+```
+
+This ensures the plugin styles are loaded correctly in the panel.
+
+## Publish Configuration
 
 ```bash
 php artisan vendor:publish --tag=filament-release-notes-config
 ```
 
-## Registrar el plugin en Filament
+## Register The Plugin In Filament
 
 ```php
 use JeanCarloMS\FilamentReleaseNotes\FilamentReleaseNotesPlugin;
@@ -42,7 +54,7 @@ FilamentReleaseNotesPlugin::make()
     ->slug('release-notes')
     ->title('Release Notes')
     ->heading('Release Notes')
-    ->subheading('Consulta el historial visual de cambios del repositorio actual.')
+    ->subheading('Browse the visual history of changes in the current repository.')
     ->defaultPerPage(100)
     ->perPageOptions([25, 50, 100, 150, 200])
     ->repositoryPath(base_path())
@@ -50,19 +62,19 @@ FilamentReleaseNotesPlugin::make()
 
 ## Shield
 
-La pagina usa `HasPageShield`, por lo tanto el permiso requerido es:
+The page uses `HasPageShield`, so the required permission is:
 
 ```text
 page_ReleaseNotes
 ```
 
-El plugin intenta crear ese permiso automaticamente si la tabla `permissions` existe.
+The plugin will attempt to create that permission automatically if the `permissions` table exists.
 
-## Configuracion
+## Configuration
 
-Archivo: `config/filament-release-notes.php`
+File: `config/filament-release-notes.php`
 
-Opciones disponibles:
+Available options:
 
 - `git_binary`
 - `repository_path`
@@ -73,19 +85,19 @@ Opciones disponibles:
 - `cache_ttl`
 - `date_format`
 
-## Limitaciones
+## Limitations
 
-- la busqueda se realiza sobre el mensaje del commit
-- el repositorio debe existir localmente
-- los links a commits dependen de `remote.origin.url`
+- search only runs against the commit message
+- the repository must exist locally
+- commit links depend on `remote.origin.url`
 
-## Publicacion en Packagist
+## Packagist Publishing
 
-1. Sube este paquete a un repositorio Git publico independiente.
-2. Crea un tag semantico, por ejemplo `v1.0.0`.
-3. Registra el repositorio en Packagist.
-4. Ejecuta `composer require JeanCarloMS/filament-release-notes` en el proyecto consumidor.
+1. Upload this package to a separate public Git repository.
+2. Create a semantic tag, for example `v1.0.0`.
+3. Register the repository on Packagist.
+4. Run `composer require JeanCarloMS/filament-release-notes` in the consuming project.
 
-## Licencia
+## License
 
 MIT
