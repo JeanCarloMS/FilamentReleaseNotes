@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JeanCarloMS\FilamentReleaseNotes\Domain\VO;
+namespace jeancarloms\FilamentReleaseNotes\Domain\VO;
 
 final readonly class ReleaseNotesFeedVO
 {

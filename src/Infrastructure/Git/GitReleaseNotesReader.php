@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JeanCarloMS\FilamentReleaseNotes\Infrastructure\Git;
+namespace jeancarloms\FilamentReleaseNotes\Infrastructure\Git;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use JeanCarloMS\FilamentReleaseNotes\Application\Contracts\ReleaseNotesReaderInterface;
-use JeanCarloMS\FilamentReleaseNotes\Domain\VO\CommitAuthorVO;
-use JeanCarloMS\FilamentReleaseNotes\Domain\VO\CommitEntryVO;
-use JeanCarloMS\FilamentReleaseNotes\Domain\VO\ReleaseNotesFeedVO;
+use jeancarloms\FilamentReleaseNotes\Application\Contracts\ReleaseNotesReaderInterface;
+use jeancarloms\FilamentReleaseNotes\Domain\VO\CommitAuthorVO;
+use jeancarloms\FilamentReleaseNotes\Domain\VO\CommitEntryVO;
+use jeancarloms\FilamentReleaseNotes\Domain\VO\ReleaseNotesFeedVO;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 

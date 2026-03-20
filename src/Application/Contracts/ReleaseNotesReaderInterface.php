@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JeanCarloMS\FilamentReleaseNotes\Application\Contracts;
+namespace jeancarloms\FilamentReleaseNotes\Application\Contracts;
 
-use JeanCarloMS\FilamentReleaseNotes\Domain\VO\ReleaseNotesFeedVO;
+use jeancarloms\FilamentReleaseNotes\Domain\VO\ReleaseNotesFeedVO;
 
 interface ReleaseNotesReaderInterface
 {

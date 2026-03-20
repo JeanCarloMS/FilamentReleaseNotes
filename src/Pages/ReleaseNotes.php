@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JeanCarloMS\FilamentReleaseNotes\Pages;
+namespace jeancarloms\FilamentReleaseNotes\Pages;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
-use JeanCarloMS\FilamentReleaseNotes\Application\Services\LoadReleaseNotesService;
-use JeanCarloMS\FilamentReleaseNotes\Support\ReleaseNotesPluginRegistry;
+use jeancarloms\FilamentReleaseNotes\Application\Services\LoadReleaseNotesService;
+use jeancarloms\FilamentReleaseNotes\Support\ReleaseNotesPluginRegistry;
 
 final class ReleaseNotes extends Page
 {

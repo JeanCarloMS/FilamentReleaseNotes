@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JeanCarloMS\FilamentReleaseNotes\Infrastructure\Git;
+namespace jeancarloms\FilamentReleaseNotes\Infrastructure\Git;
 
-use JeanCarloMS\FilamentReleaseNotes\Domain\VO\GitHubRepositoryVO;
+use jeancarloms\FilamentReleaseNotes\Domain\VO\GitHubRepositoryVO;
 
 final class GitRemoteUrlParser
 {
