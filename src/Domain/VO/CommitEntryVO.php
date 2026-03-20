@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace jeancarloms\FilamentReleaseNotes\Domain\VO;
+namespace JeanCarloMS\FilamentReleaseNotes\Domain\VO;
 
 use Carbon\CarbonImmutable;
 

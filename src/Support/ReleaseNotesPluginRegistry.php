@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace jeancarloms\FilamentReleaseNotes\Support;
+namespace JeanCarloMS\FilamentReleaseNotes\Support;
 
 use Filament\Facades\Filament;
-use jeancarloms\FilamentReleaseNotes\Domain\VO\ReleaseNotesPluginConfigVO;
+use JeanCarloMS\FilamentReleaseNotes\Domain\VO\ReleaseNotesPluginConfigVO;
 use Throwable;
 
 final class ReleaseNotesPluginRegistry
