@@ -21,13 +21,13 @@
     },
     "autoload": {
         "psr-4": {
-            "jeancarloms\\FilamentReleaseNotes\\": "src/"
+            "JeanCarloms\\FilamentReleaseNotes\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "jeancarloms\\FilamentReleaseNotes\\FilamentReleaseNotesServiceProvider"
+                "JeanCarloms\\FilamentReleaseNotes\\FilamentReleaseNotesServiceProvider"
             ]
         }
     },
