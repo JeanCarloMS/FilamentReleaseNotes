@@ -31,52 +31,143 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
     ): ReleaseNotesFeedVO
     {
         $resolvedRepositoryPath = $repositoryPath ?? (string) $this->config->get('filament-release-notes.repository_path', base_path());
-        $resolvedBranch = $branch ?? $this->resolveBranch($resolvedRepositoryPath);
         $resolvedPage = max(1, $page ?? 1);
         $resolvedPerPage = max(1, $perPage ?? (int) $this->config->get('filament-release-notes.default_per_page', 100));
         $resolvedSearch = filled($search) ? trim((string) $search) : null;
-        $headSha = $this->resolveHeadSha($resolvedRepositoryPath, $resolvedBranch);
         $cacheStore = $this->config->get('filament-release-notes.cache_store');
 
         $cacheRepository = $cacheStore
             ? $this->cacheFactory->store((string) $cacheStore)
             : $this->cacheFactory->store();
 
-        return $cacheRepository->remember(
-            $this->cacheKey($resolvedRepositoryPath, $resolvedBranch, $resolvedPage, $resolvedPerPage, $resolvedSearch, $headSha),
-            (int) $this->config->get('filament-release-notes.cache_ttl', 300),
-            function () use ($resolvedRepositoryPath, $resolvedBranch, $resolvedPage, $resolvedPerPage, $resolvedSearch, $headSha): ReleaseNotesFeedVO {
-                $remoteRepository = $this->remoteUrlParser->parse(
-                    $this->runGitCommand($resolvedRepositoryPath, ['config', '--get', 'remote.origin.url'], allowFailure: true),
-                );
-                $total = $this->resolveTotalCount(
-                    repositoryPath: $resolvedRepositoryPath,
-                    branch: $resolvedBranch,
-                    search: $resolvedSearch,
-                );
-                $effectivePage = min($resolvedPage, max(1, (int) ceil($total / max(1, $resolvedPerPage))));
-
-                return new ReleaseNotesFeedVO(
-                    commits: $this->resolveCommits(
-                        repositoryPath: $resolvedRepositoryPath,
-                        branch: $resolvedBranch,
-                        page: $effectivePage,
-                        perPage: $resolvedPerPage,
-                        search: $resolvedSearch,
-                        commitUrlResolver: $remoteRepository
-                            ? fn (string $sha): string => $remoteRepository->commitUrl($sha)
-                            : null,
-                    ),
-                    repository: $remoteRepository,
-                    branch: $resolvedBranch,
-                    headSha: $headSha,
-                    page: $effectivePage,
-                    perPage: $resolvedPerPage,
-                    total: $total,
-                    search: $resolvedSearch,
-                );
-            },
+        $repositoryValidationError = $this->validateRepository(
+            repositoryPath: $resolvedRepositoryPath,
+            page: $resolvedPage,
+            perPage: $resolvedPerPage,
+            search: $resolvedSearch,
         );
+
+        if ($repositoryValidationError !== null) {
+            return $repositoryValidationError;
+        }
+
+        try {
+            $hasCommits = $this->repositoryHasCommits($resolvedRepositoryPath);
+            $resolvedBranch = $branch ?? $this->resolveBranch($resolvedRepositoryPath);
+            $headSha = $hasCommits
+                ? $this->resolveHeadSha($resolvedRepositoryPath, $resolvedBranch)
+                : null;
+        } catch (ProcessFailedException $exception) {
+            return $this->errorFeed(
+                page: $resolvedPage,
+                perPage: $resolvedPerPage,
+                search: $resolvedSearch,
+                branch: $branch,
+                errorMessage: $this->resolveGitErrorMessage($exception, $resolvedRepositoryPath),
+            );
+        }
+
+        $cacheKey = $this->cacheKey(
+            $resolvedRepositoryPath,
+            $resolvedBranch,
+            $resolvedPage,
+            $resolvedPerPage,
+            $resolvedSearch,
+            $headSha,
+        );
+        $cachedFeed = $cacheRepository->get($cacheKey);
+
+        if ($cachedFeed instanceof ReleaseNotesFeedVO) {
+            return $cachedFeed;
+        }
+
+        $feed = $this->readUncached(
+            repositoryPath: $resolvedRepositoryPath,
+            branch: $resolvedBranch,
+            page: $resolvedPage,
+            perPage: $resolvedPerPage,
+            search: $resolvedSearch,
+            headSha: $headSha,
+            hasCommits: $hasCommits,
+        );
+
+        if ($feed->hasError) {
+            return $feed;
+        }
+
+        $cacheRepository->put(
+            $cacheKey,
+            $feed,
+            (int) $this->config->get('filament-release-notes.cache_ttl', 300),
+        );
+
+        return $feed;
+    }
+
+    private function readUncached(
+        string $repositoryPath,
+        ?string $branch,
+        int $page,
+        int $perPage,
+        ?string $search,
+        ?string $headSha,
+        bool $hasCommits,
+    ): ReleaseNotesFeedVO
+    {
+        try {
+            $remoteRepository = $this->remoteUrlParser->parse(
+                $this->runGitCommand($repositoryPath, ['config', '--get', 'remote.origin.url'], allowFailure: true),
+            );
+
+            if (! $hasCommits) {
+                return new ReleaseNotesFeedVO(
+                    commits: [],
+                    repository: $remoteRepository,
+                    branch: $branch,
+                    headSha: null,
+                    page: $page,
+                    perPage: $perPage,
+                    total: 0,
+                    search: $search,
+                );
+            }
+
+            $total = $this->resolveTotalCount(
+                repositoryPath: $repositoryPath,
+                branch: $branch,
+                search: $search,
+            );
+            $effectivePage = min($page, max(1, (int) ceil($total / max(1, $perPage))));
+
+            return new ReleaseNotesFeedVO(
+                commits: $this->resolveCommits(
+                    repositoryPath: $repositoryPath,
+                    branch: $branch,
+                    page: $effectivePage,
+                    perPage: $perPage,
+                    search: $search,
+                    commitUrlResolver: $remoteRepository
+                        ? fn (string $sha): string => $remoteRepository->commitUrl($sha)
+                        : null,
+                ),
+                repository: $remoteRepository,
+                branch: $branch,
+                headSha: $headSha,
+                page: $effectivePage,
+                perPage: $perPage,
+                total: $total,
+                search: $search,
+            );
+        } catch (ProcessFailedException $exception) {
+            return $this->errorFeed(
+                page: $page,
+                perPage: $perPage,
+                search: $search,
+                branch: $branch,
+                headSha: $headSha,
+                errorMessage: $this->resolveGitErrorMessage($exception, $repositoryPath),
+            );
+        }
     }
 
     /**
@@ -111,7 +202,7 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
             $arguments[] = '--grep=' . $search;
         }
 
-        $output = $this->runGitCommand($repositoryPath, $arguments, allowFailure: true);
+        $output = $this->runGitCommand($repositoryPath, $arguments);
 
         if ($output === '') {
             return [];
@@ -177,7 +268,7 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
 
         $arguments[] = $branch ?: 'HEAD';
 
-        $total = $this->runGitCommand($repositoryPath, $arguments, allowFailure: true);
+        $total = $this->runGitCommand($repositoryPath, $arguments);
 
         return is_numeric($total) ? (int) $total : 0;
     }
@@ -192,16 +283,54 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
             $arguments[] = 'HEAD';
         }
 
-        $sha = $this->runGitCommand($repositoryPath, $arguments, allowFailure: true);
+        $sha = $this->runGitCommand($repositoryPath, $arguments);
 
         return $sha !== '' ? $sha : null;
     }
 
     private function resolveBranch(string $repositoryPath): ?string
     {
-        $branch = $this->runGitCommand($repositoryPath, ['branch', '--show-current'], allowFailure: true);
+        $branch = $this->runGitCommand($repositoryPath, ['branch', '--show-current']);
 
         return $branch !== '' ? $branch : null;
+    }
+
+    private function validateRepository(
+        string $repositoryPath,
+        int $page,
+        int $perPage,
+        ?string $search,
+    ): ?ReleaseNotesFeedVO
+    {
+        try {
+            $isInsideWorkTree = $this->runGitCommand($repositoryPath, ['rev-parse', '--is-inside-work-tree']);
+        } catch (ProcessFailedException $exception) {
+            return $this->errorFeed(
+                page: $page,
+                perPage: $perPage,
+                search: $search,
+                errorMessage: $this->resolveGitErrorMessage($exception, $repositoryPath),
+            );
+        }
+
+        if ($isInsideWorkTree === 'true') {
+            return null;
+        }
+
+        return $this->errorFeed(
+            page: $page,
+            perPage: $perPage,
+            search: $search,
+            errorMessage: sprintf(
+                'La ruta configurada no apunta a un repositorio Git de trabajo válido: %s',
+                $repositoryPath,
+            ),
+        );
+    }
+
+    private function repositoryHasCommits(string $repositoryPath): bool
+    {
+        return (int) $this->runGitCommand($repositoryPath, ['rev-list', '--count', '--all']) > 0;
     }
 
     /**
@@ -211,6 +340,8 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
     {
         $process = new Process([
             (string) $this->config->get('filament-release-notes.git_binary', 'git'),
+            '-c',
+            'safe.directory=' . $repositoryPath,
             '-C',
             $repositoryPath,
             ...$arguments,
@@ -227,6 +358,86 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
         }
 
         return trim($process->getOutput());
+    }
+
+    private function errorFeed(
+        int $page,
+        int $perPage,
+        ?string $search,
+        ?string $branch = null,
+        ?string $headSha = null,
+        string $errorMessage = 'No fue posible leer el historial Git.',
+    ): ReleaseNotesFeedVO
+    {
+        return new ReleaseNotesFeedVO(
+            commits: [],
+            repository: null,
+            branch: $branch,
+            headSha: $headSha,
+            page: $page,
+            perPage: $perPage,
+            total: 0,
+            search: $search,
+            hasError: true,
+            errorMessage: $errorMessage,
+        );
+    }
+
+    private function resolveGitErrorMessage(ProcessFailedException $exception, string $repositoryPath): string
+    {
+        $process = $exception->getProcess();
+        $rawMessage = trim($process->getErrorOutput());
+
+        if ($rawMessage === '') {
+            $rawMessage = trim($process->getOutput());
+        }
+
+        $normalizedMessage = strtolower($rawMessage);
+
+        if (str_contains($normalizedMessage, 'dubious ownership')) {
+            return $this->appendGitDetails(
+                'Git rechazó el repositorio por ownership. El proceso web probablemente corre con otro usuario distinto al dueño del repo.',
+                $rawMessage,
+            );
+        }
+
+        if (str_contains($normalizedMessage, 'not a git repository')) {
+            return $this->appendGitDetails(
+                sprintf(
+                    'La ruta configurada no apunta a un repositorio Git válido: %s',
+                    $repositoryPath,
+                ),
+                $rawMessage,
+            );
+        }
+
+        if (str_contains($normalizedMessage, 'cannot change to')) {
+            return $this->appendGitDetails(
+                'Git no pudo acceder al repositorio configurado. Posible problema de ruta, ownership o permisos del directorio.',
+                $rawMessage,
+            );
+        }
+
+        if (str_contains($normalizedMessage, 'git: not found')) {
+            return $this->appendGitDetails(
+                'No fue posible ejecutar Git en el servidor. Verifica que el binario de Git esté instalado y disponible para el proceso PHP.',
+                $rawMessage,
+            );
+        }
+
+        return $this->appendGitDetails(
+            'No fue posible leer el historial Git del repositorio configurado.',
+            $rawMessage,
+        );
+    }
+
+    private function appendGitDetails(string $message, string $rawMessage): string
+    {
+        if ($rawMessage === '') {
+            return $message;
+        }
+
+        return $message . ' Detalle: ' . preg_replace('/\s+/', ' ', $rawMessage);
     }
 
     private function cacheKey(

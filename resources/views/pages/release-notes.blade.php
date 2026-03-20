@@ -4,6 +4,8 @@
         $groupedCommits = $releaseNotes['groupedCommits'] ?? [];
         $branch = $releaseNotes['branch'] ?? null;
         $headSha = $releaseNotes['headSha'] ?? null;
+        $hasError = $releaseNotes['hasError'] ?? false;
+        $errorMessage = $releaseNotes['errorMessage'] ?? null;
         $filters = $releaseNotes['filters'] ?? ['search' => null, 'page' => 1, 'perPage' => 100];
         $pagination = $releaseNotes['pagination'] ?? ['currentPage' => 1, 'perPage' => 100, 'total' => 0, 'totalPages' => 1, 'from' => 0, 'to' => 0, 'hasPreviousPage' => false, 'hasNextPage' => false];
     @endphp
@@ -136,7 +138,29 @@
             </div>
         </section>
 
-        @if (blank($groupedCommits))
+        @if ($hasError)
+            <section class="rounded-[1.5rem] border border-rose-200 bg-rose-50 p-6 shadow-sm">
+                <div class="flex items-start gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-100 text-rose-700">
+                        <x-heroicon-o-exclamation-triangle class="h-6 w-6" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-lg font-semibold text-rose-900">
+                            No fue posible leer el historial Git
+                        </h3>
+
+                        <p class="text-sm leading-6 text-rose-800">
+                            {{ $errorMessage }}
+                        </p>
+
+                        <p class="text-sm leading-6 text-rose-700">
+                            Verifica que la ruta configurada apunte a un repositorio Git v&aacute;lido y que el usuario del proceso PHP tenga acceso.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        @elseif (blank($groupedCommits))
             <section class="rounded-[1.5rem] border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
                 <div class="mx-auto max-w-xl space-y-3">
                     <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
@@ -148,8 +172,7 @@
                     </h3>
 
                     <p class="text-sm leading-6 text-slate-500">
-                        Verifica que el proyecto tenga acceso al repositorio Git configurado y que exista historial
-                        disponible en la rama seleccionada.
+                        No hay commits para los filtros seleccionados o el repositorio todav&iacute;a no tiene historial disponible.
                     </p>
                 </div>
             </section>

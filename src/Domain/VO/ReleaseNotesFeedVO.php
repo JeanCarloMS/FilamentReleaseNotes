@@ -18,5 +18,7 @@ final readonly class ReleaseNotesFeedVO
         public int $perPage,
         public int $total,
         public ?string $search = null,
+        public bool $hasError = false,
+        public ?string $errorMessage = null,
     ) {}
 }

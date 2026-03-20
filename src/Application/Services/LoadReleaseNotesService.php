@@ -20,6 +20,8 @@ final readonly class LoadReleaseNotesService
      *     branch: string|null,
      *     headSha: string|null,
      *     repositoryUrl: string|null,
+     *     hasError: bool,
+     *     errorMessage: string|null,
      *     filters: array{search:string|null, page:int, perPage:int},
      *     pagination: array{currentPage:int, perPage:int, total:int, totalPages:int, from:int, to:int, hasPreviousPage:bool, hasNextPage:bool},
      *     commits: array<int, array<string, mixed>>,
@@ -70,6 +72,8 @@ final readonly class LoadReleaseNotesService
             'branch' => $feed->branch,
             'headSha' => $feed->headSha,
             'repositoryUrl' => $feed->repository?->baseUrl,
+            'hasError' => $feed->hasError,
+            'errorMessage' => $feed->errorMessage,
             'filters' => [
                 'search' => $feed->search,
                 'page' => $feed->page,
