@@ -222,8 +222,8 @@
                                             </h4>
 
                                             @if (filled($commit['body']))
-                                                <p class="max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-500">
-                                                    {{ \Illuminate\Support\Str::limit($commit['body'], 320) }}
+                                                <p class="max-w-3xl text-md leading-7 text-slate-900">
+                                                    {!! nl2br(e(\Illuminate\Support\Str::limit($commit['body'], config('filament-release-notes.max_body_length', 1500)))) !!}
                                                 </p>
                                             @endif
                                         </div>

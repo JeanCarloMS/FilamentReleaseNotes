@@ -183,7 +183,7 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
         ?callable $commitUrlResolver = null,
     ): array
     {
-        $format = '%H%x1f%h%x1f%an%x1f%ae%x1f%aI%x1f%s%x1f%b%x1e';
+        $format = '%H%x1f%h%x1f%an%x1f%ae%x1f%aI%x1f%B%x1e';
         $arguments = [
             'log',
             '--max-count=' . $perPage,
@@ -211,19 +211,20 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
         $entries = array_filter(explode("\x1e", $output));
 
         return array_values(array_map(function (string $entry) use ($commitUrlResolver): CommitEntryVO {
-            [$sha, $shortSha, $authorName, $authorEmail, $committedAt, $subject, $body] = array_pad(
+            [$sha, $shortSha, $authorName, $authorEmail, $committedAt, $message] = array_pad(
                 explode("\x1f", trim($entry)),
-                7,
+                6,
                 null,
             );
 
+            [$subject, $body] = $this->splitCommitMessage((string) $message);
             [$type, $scope] = $this->resolveCommitType($subject ?? '');
 
             return new CommitEntryVO(
                 sha: (string) $sha,
                 shortSha: (string) $shortSha,
-                subject: (string) $subject,
-                body: filled(trim((string) $body)) ? trim((string) $body) : null,
+                subject: $subject,
+                body: $body,
                 author: new CommitAuthorVO(
                     name: (string) $authorName,
                     email: filled($authorEmail) ? (string) $authorEmail : null,
@@ -234,6 +235,25 @@ final readonly class GitReleaseNotesReader implements ReleaseNotesReaderInterfac
                 commitUrl: $commitUrlResolver ? $commitUrlResolver((string) $sha) : null,
             );
         }, $entries));
+    }
+
+    /**
+     * @return array{0:string,1:string|null}
+     */
+    private function splitCommitMessage(string $message): array
+    {
+        $normalizedMessage = str_replace(["\r\n", "\r"], "\n", rtrim($message));
+
+        if ($normalizedMessage === '') {
+            return ['', null];
+        }
+
+        [$subject, $body] = array_pad(explode("\n", $normalizedMessage, 2), 2, null);
+
+        return [
+            trim($subject),
+            filled(trim((string) $body)) ? trim((string) $body) : null,
+        ];
     }
 
     /**
