@@ -24,6 +24,21 @@ Includes:
 composer require JeanCarloMS/filament-release-notes
 ```
 
+## Git Safe Directory
+If you receive this error in your app it is because the owner of the directory and the PHP of the web server are differents
+```text
+No fue posible leer el historial Git. Git rechazó el repositorio por ownership. El proceso web probablemente corre con otro usuario distinto al dueño del repo. Detalle: fatal: detected dubious ownership in repository at '/var/www/html/ros' To add an exception for this directory, call: git config --global --add safe.directory /var/www/html/ros
+```
+Solution, run this command: 
+```bash
+sudo git config --system --add safe.directory /var/www/html/your_project
+```
+That command tells Git, at the system-wide level, to trust that directory even if the repository owner does not match the user running the command.
+If you want to revert:
+```bash
+sudo git config --system --unset-all safe.directory /var/www/html/your_project
+```
+
 ## Custom Filament Theme
 
 If the plugin will be used inside a Filament panel, you must create a custom theme for that panel so Tailwind can include the plugin styles.
